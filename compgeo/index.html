@@ -9,6 +9,12 @@
         width: 900px;
         height: 600px;
         display: block;
+        outline: 2px solid black;
+      }
+
+      header {
+        display: flex;
+        gap: 20px;
       }
     </style>
   </head>
@@ -16,6 +22,30 @@
     <header>
       <div>
         <button id="clearBtn">Clear</button>
+        <br />
+        <button id="stepBtn">Step</button>
+      </div>
+      <div>
+        Algorithm:
+        <br />
+        <input
+          type="radio"
+          id="graham"
+          name="algorithm"
+          value="graham"
+          checked
+        />
+        <label for="graham">Graham's Scan</label><br />
+        <input
+          type="radio"
+          id="jarvis"
+          name="algorithm"
+          value="jarvis"
+          checked
+        />
+        <label for="jarvis">Jarvis's March</label><br />
+        <input type="radio" id="brute" name="algorithm" value="brute" checked />
+        <label for="brute">Brute Force</label><br />
       </div>
     </header>
 

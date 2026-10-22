@@ -150,23 +150,6 @@ window.onload = function () {
     const count = pointsData.length / FLOATS_PER_POINT;
   }
 
-  function hexToRgba(hex) {
-    let c = hex.replace("#", "");
-    if (c.length === 3) {
-      c = c
-        .split("")
-        .map((x) => x + x)
-        .join("");
-    }
-    const num = parseInt(c, 16);
-    return [
-      ((num >> 16) & 255) / 255,
-      ((num >> 8) & 255) / 255,
-      (num & 255) / 255,
-      1.0,
-    ];
-  }
-
   function resizeCanvas() {
     const displayWidth = canvas.clientWidth;
     const displayHeight = canvas.clientHeight;
@@ -179,7 +162,7 @@ window.onload = function () {
   }
 
   function addPoint(x, y) {
-    const size = 10.0;
+    const size = 5.0;
     const [r, g, b, a] = [0.0, 0.0, 1.0, 1.0];
     const shape = 0.0;
 
@@ -213,8 +196,7 @@ window.onload = function () {
   function render() {
     resizeCanvas();
 
-    // Clear background to dark slate color
-    gl.clearColor(0.02, 0.04, 0.08, 1.0);
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     if (pointsData.length === 0) return;
