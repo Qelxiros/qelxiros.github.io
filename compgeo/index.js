@@ -160,11 +160,14 @@ window.onload = function() {
         case "graham":
           algorithm = grahams_scan(newPoints);
           break;
-        case "brute":
-          algorithm = brute_force(newPoints);
-          break;
         case "jarvis":
           algorithm = jarvis_march(newPoints);
+          break;
+        case "divcon":
+          algorithm = divide_and_conquer(newPoints);
+          break;
+        case "brute":
+          algorithm = brute_force(newPoints);
           break;
       }
     } else if (algorithmDone) {
@@ -178,6 +181,12 @@ window.onload = function() {
       return;
     }
     linesData = next.value;
+    render();
+  }
+
+  function reset() {
+    linesData = [];
+    algorithm = null;
     render();
   }
 
@@ -195,6 +204,11 @@ window.onload = function() {
   const stepBtn = document.getElementById("stepBtn");
   if (stepBtn) {
     stepBtn.addEventListener("click", step);
+  }
+
+  const algorithmInputs = document.querySelectorAll('input[name="algorithm"]');
+  for (algorithmInput of algorithmInputs) {
+    algorithmInput.addEventListener("change", reset);
   }
 
   function resizeCanvas() {
@@ -298,38 +312,43 @@ window.onload = function() {
     return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
   }
 
+  function makeLines(hull, point = null, color = [0.0, 0.0, 0.0]) {
+    const red = [1.0, 0.0, 0.0];
+
+    let lines = [];
+    for (i = 0; i < hull.length - 1; i++) {
+      let p1 = hull.at(i);
+      let p2 = hull.at(i + 1);
+      lines.push({
+        x1: p1.x,
+        y1: p1.y,
+        x2: p2.x,
+        y2: p2.y,
+        color: parseColor(color),
+      });
+    }
+    if (point !== null) {
+      let p1 = hull.at(-1);
+      lines.push({
+        x1: p1.x,
+        y1: p1.y,
+        x2: point.x,
+        y2: point.y,
+        color: parseColor(red),
+      });
+    }
+    return lines;
+  }
+
+  function peq(p1, p2) {
+    return p1.x === p2.x && p1.y === p2.y;
+  }
+
+  const green = [0.0, 1.0, 0.0];
+
   function* grahams_scan(points) {
     if (points.length < 3) {
       return;
-    }
-
-    const green = [0.0, 1.0, 0.0];
-    const red = [1.0, 0.0, 0.0];
-
-    function makeLines(hull, point = null, color = [0.0, 0.0, 0.0]) {
-      let lines = [];
-      for (i = 0; i < hull.length - 1; i++) {
-        let p1 = hull.at(i);
-        let p2 = hull.at(i + 1);
-        lines.push({
-          x1: p1.x,
-          y1: p1.y,
-          x2: p2.x,
-          y2: p2.y,
-          color: parseColor(color),
-        });
-      }
-      if (point !== null) {
-        let p1 = hull.at(-1);
-        lines.push({
-          x1: p1.x,
-          y1: p1.y,
-          x2: point.x,
-          y2: point.y,
-          color: parseColor(red),
-        });
-      }
-      return lines;
     }
 
     points.sort((a, b) => a.x - b.x);
@@ -385,16 +404,77 @@ window.onload = function() {
     );
   }
 
-  function* brute_force(points) {
+  function* jarvis_march(points) {
+    if (points.length < 3) {
+      return;
+    }
+
+    let stack = [];
+    let start = points.reduce((acc, pt) => {
+      if (pt.y < acc.y) {
+        return pt;
+      } else {
+        return acc;
+      }
+    }, points[0]);
+    stack.push({ x: 0, y: start.y });
+    stack.push(start);
+
     while (true) {
-      console.log("Brute force algorithm unsupported.");
+      let p1 = stack.at(-1);
+
+      let p2 = null;
+      for (pt of points) {
+        if (peq(p1, pt)) {
+          continue;
+        }
+
+        let lines = makeLines(stack.slice(1), pt);
+        if (p2 === null || peq(p2, p1)) {
+          p2 = pt;
+        } else {
+          lines.push({
+            x1: p1.x,
+            y1: p1.y,
+            x2: p2.x,
+            y2: p2.y,
+            color: parseColor([0.0, 1.0, 1.0]),
+          });
+        }
+
+        yield lines;
+
+        let o = orient(p1, p2, pt);
+        if (o < 0) {
+          p2 = pt;
+        } else if (o == 0) {
+          // handle collinearity
+          const d_p2 = (p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2;
+          const d_pt = (pt.x - p1.x) ** 2 + (pt.y - p1.y) ** 2;
+          if (d_pt < d_p2) {
+            p2 = pt;
+          }
+        }
+      }
+      stack.push(p2);
+      if (peq(p2, stack.at(1))) {
+        yield makeLines(stack.slice(1));
+        yield makeLines(stack.slice(1), null, green);
+        return;
+      }
+    }
+  }
+
+  function* divide_and_conquer(points) {
+    while (true) {
+      console.log("Jarvis's march algorithm unsupported.");
       yield [];
     }
   }
 
-  function* jarvis_march(points) {
+  function* brute_force(points) {
     while (true) {
-      console.log("Jarvis's march algorithm unsupported.");
+      console.log("Brute force algorithm unsupported.");
       yield [];
     }
   }
