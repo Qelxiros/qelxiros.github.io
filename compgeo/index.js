@@ -467,7 +467,7 @@ window.onload = function() {
 
   function* divide_and_conquer(points) {
     while (true) {
-      console.log("Jarvis's march algorithm unsupported.");
+      console.log("Divide and Conquer algorithm unsupported.");
       yield [];
     }
   }
